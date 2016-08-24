@@ -13,8 +13,9 @@ class ModSecurity < Formula
 
   desc "Open Source Web application firewall"
   homepage "http://www.modsecurity.org/"
-  url "https://www.modsecurity.org/tarball/2.9.0/modsecurity-2.9.0.tar.gz"
-  sha256 "e2bbf789966c1f80094d88d9085a81bde082b2054f8e38e0db571ca49208f434"
+  url "https://github.com/SpiderLabs/ModSecurity/releases/download/v2.9.1/modsecurity-2.9.1.tar.gz"
+  sha256 "958cc5a7a7430f93fac0fd6f8b9aa92fc1801efce0cda797d6029d44080a9b24"
+  head "https://github.com/SpiderLabs/ModSecurity.git"
 
   bottle do
     cellar :any
