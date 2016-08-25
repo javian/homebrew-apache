@@ -41,6 +41,11 @@ class ModSecurity < Formula
   depends_on "pcre"
   depends_on CLTRequirement if build.without?("homebrew-httpd22") && build.without?("homebrew-httpd24")
 
+  # Mavericks and older OS requires a more recent curl version than what's bundled
+  if MacOS.version <= :mavericks
+    depends_on "curl"
+  end
+
   if build.with?("homebrew-apr") && (build.with?("homebrew-httpd22") || build.with?("homebrew-httpd24"))
     opoo "Ignoring --with-homebrew-apr: homebrew apr included in httpd22 and httpd24"
   end
@@ -91,6 +96,11 @@ class ModSecurity < Formula
     else
       args << "--with-apr=/usr/bin"
       args << "--with-apu=/usr/bin"
+    end
+
+    # Mavericks and older OS requires a more recent curl version than what's bundled
+    if MacOS.version <= :mavericks
+      args << "--with-curl=#{Formula["curl"].opt_prefix}"
     end
 
     system "./autogen.sh"
