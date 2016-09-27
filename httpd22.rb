@@ -33,6 +33,14 @@ class Httpd22 < Formula
     inreplace "Makefile.in",
       '#@@ServerRoot@@#$(prefix)#', '#@@ServerRoot@@'"##{opt_prefix}#"
 
+    # fix non-executable files in sbin dir (for brew audit)
+    inreplace "support/Makefile.in",
+      "$(DESTDIR)$(sbindir)/envvars", "$(DESTDIR)$(sysconfdir)/envvars"
+    inreplace "support/Makefile.in",
+      "envvars-std $(DESTDIR)$(sbindir);", "envvars-std $(DESTDIR)$(sysconfdir);"
+    inreplace "support/apachectl.in",
+      "@exp_sbindir@/envvars", "#{etc}/apache2/2.2/envvars"
+
     # install custom layout
     File.open("config.layout", "w") { |f| f.write(httpd_layout) }
 
@@ -86,6 +94,12 @@ class Httpd22 < Formula
     touch("#{var}/log/apache2/error_log") unless File.exist?("#{var}/log/apache2/error_log")
   end
 
+  if build.with? "privileged-ports"
+    plist_options :startup => true, :manual => "apachectl start"
+  else
+    plist_options :manual => "apachectl start"
+  end
+    
   def plist; <<-EOS.undent
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
