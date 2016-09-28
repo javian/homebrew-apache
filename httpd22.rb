@@ -84,6 +84,8 @@ class Httpd22 < Formula
 
     args << "--with-pcre=#{Formula["pcre"].opt_prefix}" if build.with? "pcre"
 
+    (etc/"apache2/2.2").mkpath
+    
     system "./configure", *args
 
     system "make"
