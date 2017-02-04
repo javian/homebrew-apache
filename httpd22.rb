@@ -11,8 +11,6 @@ class Httpd22 < Formula
     sha256 "cce58a9a01559018d6aafeae50c88ef183774ffcde0f1b621353f3e0302c41b9" => :mountain_lion
   end
 
-  conflicts_with "homebrew/apache/httpd24", :because => "different versions of the same software"
-
   skip_clean :la
 
   option "with-mpm-worker", "Use the Worker Multi-Processing Module instead of Prefork"
@@ -24,6 +22,8 @@ class Httpd22 < Formula
   depends_on "pcre" => :optional
   depends_on "homebrew/dupes/zlib"
 
+  conflicts_with "homebrew/apache/httpd24", :because => "different versions of the same software"
+
   if build.with?("mpm-worker") && build.with?("mpm-event")
     raise "Cannot build with both worker and event MPMs, choose one"
   end
@@ -32,7 +32,6 @@ class Httpd22 < Formula
     # point config files to opt_prefix instead of the version-specific prefix
     inreplace "Makefile.in",
       '#@@ServerRoot@@#$(prefix)#', '#@@ServerRoot@@'"##{opt_prefix}#"
-
     # fix non-executable files in sbin dir (for brew audit)
     inreplace "support/Makefile.in",
       "$(DESTDIR)$(sbindir)/envvars", "$(DESTDIR)$(sysconfdir)/envvars"
@@ -85,7 +84,7 @@ class Httpd22 < Formula
     args << "--with-pcre=#{Formula["pcre"].opt_prefix}" if build.with? "pcre"
 
     (etc/"apache2/2.2").mkpath
-    
+
     system "./configure", *args
 
     system "make"
@@ -100,26 +99,6 @@ class Httpd22 < Formula
     plist_options :startup => true, :manual => "apachectl start"
   else
     plist_options :manual => "apachectl start"
-  end
-    
-  def plist; <<-EOS.undent
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-    <dict>
-      <key>Label</key>
-      <string>#{plist_name}</string>
-      <key>ProgramArguments</key>
-      <array>
-        <string>#{opt_prefix}/bin/httpd</string>
-        <string>-D</string>
-        <string>FOREGROUND</string>
-      </array>
-      <key>RunAtLoad</key>
-      <true/>
-    </dict>
-    </plist>
-    EOS
   end
 
   def httpd_layout
@@ -165,6 +144,26 @@ class Httpd22 < Formula
       If not using --with-privileged-ports, use the instructions below.
       EOS
     end
+  end
+
+  def plist; <<-EOS.undent
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+      <key>Label</key>
+      <string>#{plist_name}</string>
+      <key>ProgramArguments</key>
+      <array>
+        <string>#{opt_prefix}/bin/httpd</string>
+        <string>-D</string>
+        <string>FOREGROUND</string>
+      </array>
+      <key>RunAtLoad</key>
+      <true/>
+    </dict>
+    </plist>
+    EOS
   end
 
   test do
